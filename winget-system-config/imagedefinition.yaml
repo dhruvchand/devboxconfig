@@ -13,6 +13,9 @@ tasks:
         package:  Microsoft.AzureCLI
     - name: winget
       parameters:
+        package:  Microsoft.Azure.AZCopy.10
+    - name: winget
+      parameters:
         package:  Microsoft.SQLServerManagementStudio
     - name: winget
       parameters:
