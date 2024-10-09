@@ -1,0 +1,12 @@
+$schema: 1.0
+name: devdrivedef
+image: MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
+tasks:
+    - name: dev-drive
+      parameters:
+        DevBoxDevDrive: E
+    - name: git-clone
+      description: Clone this repository into C:\Workspaces
+      parameters:
+        repositoryUrl: https://github.com/microsoft/calculator
+        directory: E:\Workspaces
