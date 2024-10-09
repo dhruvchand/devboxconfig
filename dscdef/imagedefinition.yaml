@@ -1,0 +1,18 @@
+$schema: 1.0
+name: devdrivedef
+image: MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
+tasks:
+  - name: dsc
+    description: "hello, world"
+    parameters:
+      configurationPath: 'inline'
+      inlineConfiguration: |
+        $schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/config/document.json
+        resources:
+        - name: current user registry
+          type: Microsoft.Windows/Registry
+          properties:
+            keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\
+            valueName: Run
+            valueData: "C:\Windows\System32\notepad.exe"
+            _ensure: Present
