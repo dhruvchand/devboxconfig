@@ -1,6 +1,6 @@
 $schema: 1.0
 name: devdrivedef
-image: MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-22h2-ent-cpc-m365
 tasks:
     - name: dev-drive
       parameters:
