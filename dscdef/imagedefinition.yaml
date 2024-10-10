@@ -5,7 +5,6 @@ tasks:
   - name: dsc
     description: "hello, world"
     parameters:
-      configurationPath: 'inline'
       inlineConfiguration: |
         $schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/config/document.json
         resources:
