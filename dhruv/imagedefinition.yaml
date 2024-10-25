@@ -2,6 +2,12 @@ $schema: 1.0
 name: dhruvdef
 image: MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
 tasks:
-    - name: choco
+    - name: winget
       parameters:
-        package: notepadplusplus.install
+        package:  Microsoft.PowerToys
+    - name: git-clone
+      parameters:
+        repositoryUrl: https://github.com/contoso-co/eshop.git
+    - name: powershell
+      parameters:
+         command: "dotnet build"
