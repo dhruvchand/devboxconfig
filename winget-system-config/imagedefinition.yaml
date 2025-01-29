@@ -1,6 +1,8 @@
 $schema: "1.0"
 name: dhruvdef-winget
-image: MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
+buildProperties:
+    networkConnection: "Shared-WestUS3"
 tasks:
     - name: winget
       parameters:
