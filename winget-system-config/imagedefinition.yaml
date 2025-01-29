@@ -1,8 +1,6 @@
 $schema: "1.0"
 name: dhruvdef-winget
 image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
-buildProperties:
-    networkConnection: "Shared-WestUS3"
 tasks:
     - name: winget
       parameters:
@@ -25,3 +23,6 @@ tasks:
     - name: winget
       parameters:
         package:  Microsoft.PowerToys
+
+buildProperties:
+    networkConnection: "Shared-WestUS3"
