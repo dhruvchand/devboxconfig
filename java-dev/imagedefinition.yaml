@@ -1,0 +1,98 @@
+$schema: '1.0'
+name: 'java-ddev'
+image: microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2
+description: 'This definition is for Java development with Copilot and Maven'
+
+tasks:
+  - name: winget
+    description: Install JDK (latest)
+    parameters:
+      package: Microsoft.OpenJDK.17
+
+  - name: winget
+    description: Install Visual Studio Code
+    parameters:
+      package: Microsoft.VisualStudioCode
+
+  - name: winget
+    description: Install Git
+    parameters:
+      package: Git.Git
+
+  - name: powershell
+    description: Install Apache Maven
+    parameters:
+      command: |
+        # Define the version of Maven to install
+        $mavenVersion = '3.9.9'
+        $mavenUrl = 'https://downloads.apache.org/maven/maven-3/' + $mavenVersion + '/binaries/apache-maven-' + $mavenVersion + '-bin.zip'
+        $installPath = 'C:\Program Files\Apache\Maven'
+
+        # Download Maven
+        Write-Host ('Downloading Apache Maven ' + $mavenVersion + '...')
+        Invoke-WebRequest -Uri ($mavenUrl) -OutFile ('apache-maven-' + $mavenVersion + '-bin.zip')
+
+        # Extract Maven
+        Write-Host 'Extracting Maven...'
+        Expand-Archive -Path ('apache-maven-' + $mavenVersion + '-bin.zip') -DestinationPath $installPath
+
+        # Set environment variables
+        Write-Host 'Setting environment variables...'
+        [System.Environment]::SetEnvironmentVariable('M2_HOME', $installPath + '\apache-maven-' + $mavenVersion, [System.EnvironmentVariableTarget]::Machine)
+        [System.Environment]::SetEnvironmentVariable('MAVEN_HOME', $installPath + '\apache-maven-' + $mavenVersion, [System.EnvironmentVariableTarget]::Machine)
+        $env:Path += ';' + $installPath + '\apache-maven-' + $mavenVersion + '\bin'
+        [System.Environment]::SetEnvironmentVariable('Path', $env:Path, [System.EnvironmentVariableTarget]::Machine)
+
+        # Clean up
+        Write-Host 'Cleaning up...'
+        Remove-Item -Path ('apache-maven-' + $mavenVersion + '-bin.zip')
+
+        Write-Host ('Apache Maven ' + $mavenVersion + ' installed successfully.')
+
+userTasks:
+  - name: powershell
+    description: Set Visual Studio Code proxy settings
+    parameters:
+      command: |
+        # Define the proxy URLs
+        $proxy1 = 'http://deepprompteastus.openai.azure.com'
+        $proxy2 = 'http://data-ai.microsoft.com'
+
+        # Get the path to the VS Code settings file
+        $vscodeSettingsPath = $env:APPDATA + '\Code\User\settings.json'
+
+        # Read the existing settings
+        if (Test-Path $vscodeSettingsPath) {
+            $settings = Get-Content $vscodeSettingsPath -Raw | ConvertFrom-Json
+        } else {
+            $settings = @{}
+        }
+
+        # Set the proxy settings
+        $settings['http.proxy'] = $proxy1
+        $settings['http.proxyStrictSSL'] = $false
+
+        # Add the second proxy to the no-proxy list
+        if (-not $settings['http.proxySupport']) {
+            $settings['http.proxySupport'] = 'override'
+        }
+        if (-not $settings['http.proxyAuthorization']) {
+            $settings['http.proxyAuthorization'] = 'Basic'
+        }
+        if (-not $settings['http.proxyExcludeList']) {
+            $settings['http.proxyExcludeList'] = @()
+        }
+        $settings['http.proxyExcludeList'] += $proxy2
+
+        # Save the updated settings
+        $settings | ConvertTo-Json -Depth 32 | Set-Content $vscodeSettingsPath -Force
+
+        Write-Host 'VS Code proxy settings updated successfully.'
+
+  - name: powershell
+    description: Install VS Code Copilot and Java Upgrade extensions after login
+    parameters:
+      command: |
+        # Install VS Code extensions
+        code --install-extension GitHub.copilot
+        code --install-extension vscjava.vscode-java-pack
