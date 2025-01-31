@@ -96,3 +96,6 @@ userTasks:
         # Install VS Code extensions
         code --install-extension GitHub.copilot
         code --install-extension vscjava.vscode-java-pack
+        
+buildProperties:
+    networkConnection: "Shared-WestUS3"
