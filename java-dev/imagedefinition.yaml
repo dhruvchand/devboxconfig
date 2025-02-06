@@ -130,8 +130,11 @@ userTasks:
     parameters:
       command: |
         $serverid = 'internal-maven-repo' # Update this ID with your mirror ID
-
-        $mavenSettingsPath = $env:USERPROFILE + '\.m2\settings.xml'
+        $m2Path = $env:USERPROFILE + '\.m2'
+        if (-not (Test-Path $m2Path)) {
+            New-Item -Path $m2Path -ItemType Directory
+        }
+        $mavenSettingsPath = $m2Path + '\settings.xml'
 
         $header = '<?xml version=\\""""""1.0\\"""""" encoding=\\""""""UTF-8\\""""""?>'
         $header | Set-Content -Path $mavenSettingsPath
