@@ -166,7 +166,7 @@ userTasks:
     description: Require user to input the maven credentials
     parameters:
       command: |
-        Start-Process PowerShell -ArgumentList '-NoExit -Command """ `
+        Start-Process PowerShell -ArgumentList '-Command """ `
         $mavenUser=Read-Host ''Enter your Maven repository username''; `
         $mavenPassword=Read-Host ''Enter your Maven repository password'' -AsSecureString; `
         $mavenPassword=[System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($mavenPassword)); `
