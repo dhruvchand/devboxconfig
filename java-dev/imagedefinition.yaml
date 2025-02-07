@@ -5,9 +5,14 @@ description: 'This definition is for Java development with Copilot and Maven'
 
 tasks:
   - name: winget
-    description: Install JDK (latest)
+    description: Install JDK 17
     parameters:
       package: Microsoft.OpenJDK.17
+
+  - name: winget
+    description: Install JDK 21
+    parameters:
+      package: Microsoft.OpenJDK.21
 
   - name: winget
     description: Install Visual Studio Code
@@ -124,6 +129,14 @@ userTasks:
         # Install VS Code extensions
         code --install-extension GitHub.copilot
         code --install-extension vscjava.vscode-java-pack
+
+        # Download Java Upgrade Tool and install
+        $installerName = 'vscode-java-upgrade-0.6.1.vsix'
+        $installerPath = Join-Path -Path $env:TEMP -ChildPath $installerName
+        Write-Host "[${env:username}] Downloading Java Upgrade Tool ..."
+        $javaUpgradeToolUrl = 'https://sadevbox01.blob.core.windows.net/devbox/vscode-java-upgrade-0.6.1.vsix?sp=r&st=2025-02-07T00:57:49Z&se=2025-05-07T08:57:49Z&spr=https&sv=2022-11-02&sr=b&sig=GVhFOzVTvR4U5j8bdsxyA%2FtApHChn4rmpFmjs49Tyx8%3D'
+        (new-object net.webclient).DownloadFile($javaUpgradeToolUrl, $installerPath)
+        code --install-extension $installerPath
 
   - name: powershell
     description: Add maven credentials to user maven settings.xml 
