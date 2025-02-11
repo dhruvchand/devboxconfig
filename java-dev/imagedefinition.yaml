@@ -5,9 +5,14 @@ description: 'This definition is for Java development with Copilot and Maven'
 
 tasks:
   - name: winget
-    description: Install JDK (latest)
+    description: Install JDK 17
     parameters:
       package: Microsoft.OpenJDK.17
+
+  - name: winget
+    description: Install JDK 21
+    parameters:
+      package: Microsoft.OpenJDK.21
 
   - name: winget
     description: Install Visual Studio Code
@@ -38,10 +43,38 @@ tasks:
 
         # Set environment variables
         Write-Host 'Setting environment variables...'
-        [System.Environment]::SetEnvironmentVariable('M2_HOME', $installPath + '\apache-maven-' + $mavenVersion, [System.EnvironmentVariableTarget]::Machine)
         [System.Environment]::SetEnvironmentVariable('MAVEN_HOME', $installPath + '\apache-maven-' + $mavenVersion, [System.EnvironmentVariableTarget]::Machine)
         $env:Path += ';' + $installPath + '\apache-maven-' + $mavenVersion + '\bin'
         [System.Environment]::SetEnvironmentVariable('Path', $env:Path, [System.EnvironmentVariableTarget]::Machine)
+
+        # Update the global maven settings file for private maven reposiotry
+        Write-Host 'Updating Maven settings.xml...'
+        $mirrorId = 'internal-maven-repo'                           # Update this ID with your mirror ID
+        $mirrorUrl = 'http://10.0.1.4:8081/repository/maven-public' # Update this URL with your private Maven repository URL
+
+        $settingsPath = $installPath + '\apache-maven-' + $mavenVersion + '\conf\settings.xml'
+        $xml = [xml](Get-Content $settingsPath)
+        Write-Host $xml
+        $mirrors = $xml.settings.mirrors
+
+        $mirrorElement = $xml.CreateElement('mirror', $mirrors.NamespaceURI)
+        $mirrorElement.InnerText = $null
+        $mirrors.AppendChild($mirrorElement) | out-null
+        $xml.Save($settingsPath)
+
+        $mirrorIdElement = $xml.CreateElement('id', $mirrors.NamespaceURI)
+        $mirrorIdElement.InnerText = $mirrorId
+        $mirrorElement.AppendChild($mirrorIdElement) | out-null
+
+        $mirrorUrlElement = $xml.CreateElement('url', $mirrors.NamespaceURI)
+        $mirrorUrlElement.InnerText = $mirrorUrl
+        $mirrorElement.AppendChild($mirrorUrlElement) | out-null
+
+        $mirrorMirrorOf = $xml.CreateElement('mirrorOf', $mirrors.NamespaceURI)
+        $mirrorMirrorOf.InnerText = '*'
+        $mirrorElement.AppendChild($mirrorMirrorOf) | out-null
+        
+        $xml.Save($settingsPath)
 
         # Clean up
         Write-Host 'Cleaning up...'
@@ -96,6 +129,65 @@ userTasks:
         # Install VS Code extensions
         code --install-extension GitHub.copilot
         code --install-extension vscjava.vscode-java-pack
+
+        # Download Java Upgrade Tool and install
+        $installerName = 'vscode-java-upgrade-0.6.1.vsix'
+        $installerPath = Join-Path -Path $env:TEMP -ChildPath $installerName
+        Write-Host "[${env:username}] Downloading Java Upgrade Tool ..."
+        $javaUpgradeToolUrl = 'https://sadevbox01.blob.core.windows.net/devbox/vscode-java-upgrade-0.6.1.vsix?sp=r&st=2025-02-07T00:57:49Z&se=2025-05-07T08:57:49Z&spr=https&sv=2022-11-02&sr=b&sig=GVhFOzVTvR4U5j8bdsxyA%2FtApHChn4rmpFmjs49Tyx8%3D'
+        (new-object net.webclient).DownloadFile($javaUpgradeToolUrl, $installerPath)
+        code --install-extension $installerPath
+
+  - name: powershell
+    description: Add maven credentials to user maven settings.xml 
+    parameters:
+      command: |
+        $serverid = 'internal-maven-repo' # Update this ID with your mirror ID
+        $m2Path = $env:USERPROFILE + '\.m2'
+        if (-not (Test-Path $m2Path)) {
+            New-Item -Path $m2Path -ItemType Directory
+        }
+        $mavenSettingsPath = $m2Path + '\settings.xml'
+
+        $header = '<?xml version=\\""""""1.0\\"""""" encoding=\\""""""UTF-8\\""""""?>'
+        $header | Set-Content -Path $mavenSettingsPath
+
+        $settings = '<settings xmlns=\\""""""http://maven.apache.org/SETTINGS/1.2.0\\"""""" xmlns:xsi=\\""""""http://www.w3.org/2001/XMLSchema-instance\\"""""" xsi:schemaLocation=\\""""""http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd\\"""""">'
+        $settings | Add-Content -Path $mavenSettingsPath
+        '</settings>' | Add-Content -Path $mavenSettingsPath
         
+        $xml = [xml](Get-Content $mavenSettingsPath)
+        $settingsElement = $xml.settings
+        $serversElement = $xml.CreateElement('servers', $settingsElement.NamespaceURI)
+        $settingsElement.AppendChild($serversElement) | out-null
+
+        $serverElement = $xml.CreateElement('server', $serversElement.NamespaceURI)
+        $serversElement.AppendChild($serverElement) | out-null
+
+        $idElement = $xml.CreateElement('id', $serverElement.NamespaceURI)
+        $idElement.InnerText = $serverid
+        $serverElement.AppendChild($idElement) | out-null
+
+        $usernameElement = $xml.CreateElement('username', $serverElement.NamespaceURI)
+        $usernameElement.InnerText = '${env.MAVEN_USER}'
+        $serverElement.AppendChild($usernameElement) | out-null
+
+        $passwordElement = $xml.CreateElement('password', $serverElement.NamespaceURI)
+        $passwordElement.InnerText = '${env.MAVEN_PASSWORD}'
+        $serverElement.AppendChild($passwordElement) | out-null
+
+        $xml.Save($mavenSettingsPath)
+
+  - name: powershell
+    description: Require user to input the maven credentials
+    parameters:
+      command: |
+        Start-Process PowerShell -ArgumentList '-Command """ `
+        $mavenUser=Read-Host ''Enter your Maven repository username''; `
+        $mavenPassword=Read-Host ''Enter your Maven repository password'' -AsSecureString; `
+        $mavenPassword=[System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($mavenPassword)); `
+        [System.Environment]::SetEnvironmentVariable(''MAVEN_USER'', $mavenUser, [System.EnvironmentVariableTarget]::Machine); `
+        [System.Environment]::SetEnvironmentVariable(''MAVEN_PASSWORD'', $mavenPassword, [System.EnvironmentVariableTarget]::Machine); `
+        """ ' -Verb RunAs  
 buildProperties:
     networkConnection: "Shared-WestUS3"
