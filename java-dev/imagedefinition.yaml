@@ -1,3 +1,5 @@
+# This example uses inline powershell in an imagedefinition.yaml, a version that offloads this setup to powershell DSC is coming soon
+
 $schema: '1.0'
 name: 'java-dev'
 image: microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2
