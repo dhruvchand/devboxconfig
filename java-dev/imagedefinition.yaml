@@ -1,5 +1,5 @@
 $schema: '1.0'
-name: 'java-ddev'
+name: 'java-dev'
 image: microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m365-gen2
 description: 'This definition is for Java development with Copilot and Maven'
 
