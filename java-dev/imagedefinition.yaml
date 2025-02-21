@@ -4,27 +4,27 @@ image: microsoftvisualstudio_visualstudioplustools_vs-2022-ent-general-win11-m36
 description: 'This definition is for Java development with Copilot and Maven'
 
 tasks:
-  - name: winget
+  - name: ~/winget
     description: Install JDK 17
     parameters:
       package: Microsoft.OpenJDK.17
 
-  - name: winget
+  - name: ~/winget
     description: Install JDK 21
     parameters:
       package: Microsoft.OpenJDK.21
 
-  - name: winget
+  - name: ~/winget
     description: Install Visual Studio Code
     parameters:
       package: Microsoft.VisualStudioCode
 
-  - name: winget
+  - name: ~/winget
     description: Install Git
     parameters:
       package: Git.Git
 
-  - name: powershell
+  - name: ~/powershell
     description: Install Apache Maven
     parameters:
       command: |
@@ -83,7 +83,7 @@ tasks:
         Write-Host ('Apache Maven ' + $mavenVersion + ' installed successfully.')
 
 userTasks:
-  - name: powershell
+  - name: ~/powershell
     description: Set Visual Studio Code proxy settings
     parameters:
       command: |
@@ -122,7 +122,7 @@ userTasks:
 
         Write-Host 'VS Code proxy settings updated successfully.'
 
-  - name: powershell
+  - name: ~/powershell
     description: Install VS Code Copilot and Java Upgrade extensions after login
     parameters:
       command: |
@@ -138,7 +138,7 @@ userTasks:
         (new-object net.webclient).DownloadFile($javaUpgradeToolUrl, $installerPath)
         code --install-extension $installerPath
 
-  - name: powershell
+  - name: ~/powershell
     description: Add maven credentials to user maven settings.xml 
     parameters:
       command: |
@@ -178,11 +178,11 @@ userTasks:
 
         $xml.Save($mavenSettingsPath)
 
-  - name: powershell
+  - name: ~/powershell
     description: Require user to input the maven credentials
     parameters:
       command: |
-        Start-Process PowerShell -ArgumentList '-Command """ `
+        Start-Process ~/powershell -ArgumentList '-Command """ `
         $mavenUser=Read-Host ''Enter your Maven repository username''; `
         $mavenPassword=Read-Host ''Enter your Maven repository password'' -AsSecureString; `
         $mavenPassword=[System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($mavenPassword)); `
