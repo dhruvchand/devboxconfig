@@ -1,0 +1,18 @@
+$schema: "1.0"
+name: winget-agreements
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
+tasks:
+    - name: ~/winget
+      parameters:
+        package:  open-source-labs.ReacType
+    - name: ~/winget
+      parameters:
+        package:  mongoDB.Shell
+    - name: ~/winget
+      parameters:
+        package:  OpenJS.NodeJS
+    - name: ~/winget
+      parameters:
+        package:  Postman.Postman
+
+
